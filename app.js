@@ -25,8 +25,9 @@ async function initialize() {
     return;
   }
   const { paymentIntent } = await stripe.retrievePaymentIntent(clientSecret);
+  console.log("📢[app.js:28]: paymentIntent: ", paymentIntent);
   //requires_action
-  if (paymentIntent.status === "requires_action") {
+  if (paymentIntent?.status === "requires_action") {
     initialize();
     showMessage("Your payment is processing.");
     return;
@@ -84,9 +85,11 @@ async function handleSubmit(e) {
   const qs = new URLSearchParams(window.location.search);
   const clientSecret =
     qs.get("clientSecret") || qs.get("payment_intent_client_secret");
+  console.log("📢[app.js:89]: clientSecret: ", clientSecret);
   const { paymentIntent } = await stripe.retrievePaymentIntent(clientSecret);
+  console.log("📢[app.js:88]: paymentIntent: ", paymentIntent);
 
-  if (paymentIntent.status === "succeeded") {
+  if (paymentIntent?.status === "succeeded") {
     sendDataToApp({ status: "succeeded", message: "Payment succeeded!" });
     return;
   }
@@ -95,10 +98,12 @@ async function handleSubmit(e) {
     elements,
     confirmParams: {
       // Make sure to change this to your payment completion page
-      return_url: "https://wechat-pay.vercel.app/",
+      return_url: "https://wechat-pay-sense.vercel.app/",
       receipt_email: "abc@gmail.com",
     },
   });
+  console.log("📢[app.js:97]: error: ", error);
+
   // This point will only be reached if there is an immediate error when
   // confirming the payment. Otherwise, your customer will be redirected to
   // your `return_url`. For some payment methods like iDEAL, your customer will
@@ -127,7 +132,8 @@ async function checkStatus() {
   }
 
   const { paymentIntent } = await stripe.retrievePaymentIntent(clientSecret);
-  switch (paymentIntent.status) {
+  console.log("📢[app.js:130]: paymentIntent: ", paymentIntent);
+  switch (paymentIntent?.status) {
     case "succeeded":
       sendDataToApp({ status: "succeeded", message: "Payment succeeded!" });
       showMessage("Payment succeeded!");
